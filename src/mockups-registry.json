@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ai-recommended-candidates",
+    "title": "AI Recommended Candidates",
+    "description": "Redesigned candidate recommendation panel within the job pipeline view. Features funnel labelling, match percentage breakdowns, bulk selection, and thumbs feedback.",
+    "category": "AI Matching",
+    "tags": ["candidates", "pipeline", "AI matching", "ATS"],
+    "type": "react",
+    "file": "AiRecommendedCandidates",
+    "status": "approved",
+    "addedAt": "2025-01-15",
+    "addedBy": "Javed"
+  },
+  {
+    "id": "candidate-trust-simulator",
+    "title": "Candidate Trust Simulator",
+    "description": "10-screen interactive simulator showcasing the full candidate experience with trust documentation, AI transparency screens, and rights charter under Swiss nLPD.",
+    "category": "Candidate Experience",
+    "tags": ["trust", "candidate", "nLPD", "AI interviews", "onboarding"],
+    "type": "react",
+    "file": "CandidateTrustSimulator",
+    "status": "approved",
+    "addedAt": "2025-01-20",
+    "addedBy": "Javed"
+  }
+]
