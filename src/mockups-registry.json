@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "candidate-experience-mockup",
+    "title": "Candidate Experience Mockup",
+    "description": "Updated UI/UX changes to improve candidate experience",
+    "category": "ATS Workflow",
+    "tags": [
+      "Candidate Experience"
+    ],
+    "type": "react",
+    "file": "candidate_experience_mockup",
+    "status": "approved",
+    "addedAt": "2026-04-16",
+    "addedBy": "Javed Memon"
+  }
+]
