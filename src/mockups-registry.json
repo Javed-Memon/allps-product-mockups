@@ -1,16 +1,1 @@
-[
-  {
-    "id": "integrated-ai-sourcing-hub",
-    "title": "Integrated AI Sourcing Hub",
-    "description": "Integrated launcher for AI Sourcing Hub workflows and Browser Extension Flows",
-    "category": "AI Sourcing",
-    "tags": [
-      "AI Sourcing"
-    ],
-    "type": "react",
-    "file": "TalentOS-Launcher",
-    "status": "approved",
-    "addedAt": "2026-04-16",
-    "addedBy": "Javed Memon"
-  }
-]
+[]
