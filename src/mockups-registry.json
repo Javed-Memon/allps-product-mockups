@@ -1,5 +1,20 @@
 [
   {
+    "id": "compliance-implementation-hub",
+    "title": "Compliance Implementation Hub",
+    "description": "GDPR and EU AI Act Compliance implementation hub",
+    "category": "ATS Workflow",
+    "tags": [
+      "GDPR",
+      "EU-AI-ACT"
+    ],
+    "type": "html",
+    "file": "allps_ai_compliance_implementation_hub.html",
+    "status": "review",
+    "addedAt": "2026-04-23",
+    "addedBy": "Javed Memon"
+  },
+  {
     "id": "sictic-signup-page",
     "title": "SICTIC Signup Page",
     "description": "Landing Page for SICTIC Signup",
