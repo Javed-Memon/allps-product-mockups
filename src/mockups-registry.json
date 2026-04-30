@@ -15,20 +15,6 @@
     "addedBy": "Javed Memon"
   },
   {
-    "id": "sictic-signup-page",
-    "title": "SICTIC Signup Page",
-    "description": "Landing Page for SICTIC Signup",
-    "category": "Other",
-    "tags": [
-      "Landing Page"
-    ],
-    "type": "react",
-    "file": "Sictic-signup",
-    "status": "draft",
-    "addedAt": "2026-04-16",
-    "addedBy": "Javed Memon"
-  },
-  {
     "id": "candidate-experience-mockup",
     "title": "Candidate Experience Mockup",
     "description": "Updated candidate experience flows",
