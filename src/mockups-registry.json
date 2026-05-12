@@ -17,15 +17,15 @@
   {
     "id": "candidate-experience-mockup",
     "title": "Candidate Experience Mockup",
-    "description": "Updated candidate experience flows",
+    "description": "Updated with Compliance screen",
     "category": "ATS Workflow",
     "tags": [
       "Candidate Experience"
     ],
     "type": "react",
-    "file": "candidate_experience_mockup",
+    "file": "candidate_experience_mockup_v3",
     "status": "approved",
-    "addedAt": "2026-04-16",
+    "addedAt": "2026-05-12",
     "addedBy": "Javed Memon"
   }
 ]
