@@ -1,5 +1,21 @@
 [
   {
+    "id": "consent-management-dashboard",
+    "title": "Consent Management Dashboard",
+    "description": "Consent Management Dashboard and Documentation",
+    "category": "ATS Workflow",
+    "tags": [
+      "Compliance",
+      "GDPR",
+      "EU_AI_Act"
+    ],
+    "type": "react",
+    "file": "allps_ai_consent_management_dashboard_v1",
+    "status": "review",
+    "addedAt": "2026-05-13",
+    "addedBy": "Javed Memon"
+  },
+  {
     "id": "compliance-implementation-hub",
     "title": "Compliance Implementation Hub",
     "description": "GDPR and EU AI ACT Compliance Implementation Hub - updated",
