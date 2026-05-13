@@ -17,15 +17,16 @@
   {
     "id": "candidate-experience-mockup",
     "title": "Candidate Experience Mockup",
-    "description": "Updated with Compliance screen",
+    "description": "Updated Client and Platform compliance dashboards",
     "category": "ATS Workflow",
     "tags": [
-      "Candidate Experience"
+      "Candidate Experience",
+      "Compliance"
     ],
     "type": "react",
-    "file": "candidate_experience_mockup_v3",
+    "file": "candidate_experience_mockup_v4",
     "status": "approved",
-    "addedAt": "2026-05-12",
+    "addedAt": "2026-05-13",
     "addedBy": "Javed Memon"
   }
 ]
