@@ -2476,8 +2476,617 @@ function PlatformC1Register() {
   );
 }
 
+// ─────────────────────────────────────────────
+// PLATFORM — SIMPLIFIED GUIDE
+// ─────────────────────────────────────────────
+
+const PLATFORM_SIX_IMMEDIATE = [
+  {
+    id:"P1", n:"P1", status:"overdue",
+    title: "Run the deletion engine every night",
+    plain: "Every night, automatically delete candidate data that has passed its keep window. Unsuccessful profiles at 12 months. Interview recordings at 6 months after role closure. Talent pool profiles that weren't renewed. Log what was deleted. Alert the team if the job fails.",
+    notDoing: "You're holding data you're no longer allowed to hold. Regulators specifically look for companies with no deletion schedule. This is a violation even if no one ever misused the data.",
+    done: "A scheduled job runs nightly at 02:00 UTC. Its log shows what was deleted and why. If it fails, an on-call alert fires within 1 hour. You can show a regulator the deletion log for any date.",
+    effort: "~2 days backend / DevOps", cat: "data", catLabel: "Data Infrastructure",
+  },
+  {
+    id:"P2", n:"P2", status:"overdue",
+    title: "Route and track every data request with a 30-day deadline",
+    plain: "When a candidate asks to see, fix, or delete their data, that request must land in a ticket system with a 30-day countdown, an assigned owner, and an automatic acknowledgement email to the candidate within 24 hours. You see all clients together here — this is the platform-level pipeline.",
+    notDoing: "Requests land in an inbox with no tracking. Missing the 30-day window triggers a formal breach notification requirement you then have to file with a supervisory authority.",
+    done: "Every data request creates a ticket with: candidate ID, request type, filed date, 30-day deadline, assigned owner. Acknowledgement email fires automatically within 24 hours. Completed tickets send a confirmation to the candidate.",
+    effort: "~3 days backend + workflow tool", cat: "data", catLabel: "Data Infrastructure",
+  },
+  {
+    id:"P3", n:"P3", status:"overdue",
+    title: "Log every AI decision — permanently and tamper-proof",
+    plain: "Every time an AI module produces an output — a match score, a screening result, a skills assessment — write that event to an append-only log. The log must record: which AI module and version ran, which candidate (hashed), which client, what happened, and whether a human reviewed it and what they decided.",
+    notDoing: "You have no audit trail. If a candidate challenges their AI assessment, or a regulator asks for records, you cannot prove anything about what the AI decided or whether a human was involved.",
+    done: "Every AI pipeline step writes to an immutable audit log. You can pull the full log for any candidate within minutes. Log retention is minimum 6 months. No log entry can be edited or deleted.",
+    effort: "~3 days backend", cat: "data", catLabel: "Data Infrastructure",
+  },
+  {
+    id:"P10", n:"P10", status:"overdue",
+    title: "AI literacy training — complete it for all relevant staff right now",
+    plain: "Everyone on the team who works with the AI hiring features — engineers who build the models, product managers who define the features, customer-facing staff who advise clients — must have completed basic AI literacy training. This was legally required since February 2025. If anyone hasn't done it, that is a live compliance gap today.",
+    notDoing: "The February 2025 deadline has passed. If staff haven't completed this, you are already non-compliant. This is one of the simplest items to fix — and one of the easiest for a regulator to check.",
+    done: "Every relevant staff member has a completion record: name, role, date completed, training version. Overdue staff are enrolled immediately. New joiners complete it within their first 30 days.",
+    effort: "~1 day admin + training time", cat: "internal", catLabel: "Internal Team",
+  },
+];
+
+const PLATFORM_SIX_MONTH12 = [
+  {
+    id:"P4", n:"P4", status:"month1",
+    title: "Build and maintain the candidate self-service portal",
+    plain: "This is the portal candidates use to see their data, withdraw consent, object to processing, and download or delete everything. The platform builds and hosts this — it is the backend to everything clients see in their consent dashboard. Access via magic link in confirmation emails, no account creation needed.",
+    notDoing: "Without the portal, candidates have no way to exercise their rights without emailing support. The client consent dashboard shows statuses but nothing updates if there is no portal triggering the changes.",
+    done: "Portal accessible via magic link. Shows: stored data, consent status per type (C2/C3/C4), C1 processing status. Has working buttons for: withdraw consent (each type independently), delete all data, download data. Each action creates a logged event and a confirmation email.",
+    effort: "~1 week full-stack", cat: "candidate", catLabel: "Candidate Control",
+  },
+  {
+    id:"P5", n:"P5", status:"month2",
+    title: "Enforce that processing actually stops when consent is withdrawn",
+    plain: "When a candidate withdraws consent for a screening interview, the AI pipeline must be physically blocked from running for that candidate. Not just a database flag that says 'withdrawn' — the pipeline step must fail gracefully if it checks and finds no valid consent. Same for C1 objections.",
+    notDoing: "The consent dashboard shows 'withdrawn' but the AI might still process the candidate if the pipeline doesn't check. The record says compliant. The system is not. This is the enforcement layer that makes the client's consent dashboard meaningful.",
+    done: "Every AI pipeline step checks consent status before running. If consent is withdrawn for that step type, the step fails gracefully and routes to human review. This check is middleware-level — not an optional application check that can be bypassed.",
+    effort: "~3 days backend middleware", cat: "candidate", catLabel: "Candidate Control",
+  },
+  {
+    id:"P11", n:"P11", status:"month2",
+    title: "Gate AI features behind a completed client onboarding checklist",
+    plain: "Before a client can turn on any AI hiring feature, they must have: received an AI briefing, signed a Data Processing Agreement, confirmed they have added an AI disclosure to job postings, and confirmed they have a candidate rights page. The platform must enforce this as a gate — not a recommendation.",
+    notDoing: "Clients are using AI hiring features without completing their own legal obligations as deployers. If something goes wrong, Allps AI shares the liability. The onboarding checklist is currently informational — it must become a hard gate in the client activation flow.",
+    done: "AI features (scheduling AI interviews, enabling AI matching) cannot be activated for a client until all four onboarding items are marked complete. The activation flow checks the checklist and blocks if any item is pending. Checklist status is visible in the Platform Deployer Onboarding tab.",
+    effort: "~2 days backend + client onboarding UI", cat: "internal", catLabel: "Internal Team",
+  },
+];
+
+const PLATFORM_AUG2026 = [
+  {
+    id:"P6", n:"P6", status:"aug2026",
+    title: "Write a Technical File for each AI module — before August 2026",
+    plain: "For each of the four AI modules (sourcing, matching, screening interview, skills interview), write a document that describes: what the AI does, what data it uses, what it does not use, how it was tested, what its known limitations are, and how humans stay in control. This is an internal compliance record — it is not public. You cannot register with the EU AI database without it.",
+    notDoing: "Without Technical Files, you cannot legally deploy high-risk AI in hiring contexts in the EU after August 2026. It is also the foundation for everything else in this category — bias test reports and DPIAs reference it.",
+    done: "One Technical File per module, all four complete before 1 July 2026 (to leave time for registration). Each covers: system description, data inputs used and excluded, performance metrics, known limitations, human oversight mechanisms, version history. Stored in compliance register. Updated on every model version change.",
+    effort: "~1 week per module (documentation work)", cat: "ai", catLabel: "AI Safety Proof",
+  },
+  {
+    id:"P7", n:"P7", status:"aug2026",
+    title: "Test each AI module for bias before it goes live and after every update",
+    plain: "Before any AI model is deployed to production — and after every significant update — run a test checking whether the model's pass rates differ significantly across gender, age band, and ethnicity. Use the 80% rule: if any group's pass rate is less than 80% of the highest-passing group, investigate before deploying. This test must be a mandatory step in your deployment pipeline.",
+    notDoing: "You're deploying AI that might systematically disadvantage candidates based on protected characteristics. Even without intent, if the model produces biased outputs and you didn't test for it, you're liable.",
+    done: "Bias test suite runs automatically as a CI/CD gate on every model update. Deployment is blocked if any protected group falls below the 80% threshold. Test reports are stored in the compliance register with model version tag. You can show a regulator the test history for any model version.",
+    effort: "~1 week to build the test pipeline + integrate into CI/CD", cat: "ai", catLabel: "AI Safety Proof",
+  },
+  {
+    id:"P8", n:"P8", status:"aug2026",
+    title: "Document the privacy risks of each AI feature before it goes live",
+    plain: "For each AI feature that makes decisions about candidates — AI matching, screening interview, skills interview — write a short document assessing the privacy risks before it launches. Cover: what data is processed, why, what the risks are, and what you're doing about them. Your DPO must sign off. Three documents total.",
+    notDoing: "Launching AI features that process candidate data without a prior risk assessment is a GDPR requirement gap. If a data breach or discrimination claim occurs, not having done this assessment significantly worsens the regulatory outcome.",
+    done: "Three DPIAs completed: AI Matching, AI Screening Interview, AI Skills Interview. Each covers: data description, processing purpose, risk matrix (likelihood × severity), mitigations, residual risk, DPO sign-off. Stored in compliance register. Reviewed annually or on significant system changes.",
+    effort: "~2–3 days per DPIA (documentation + DPO review)", cat: "ai", catLabel: "AI Safety Proof",
+  },
+  {
+    id:"P9", n:"P9", status:"aug2026",
+    title: "Register all four AI modules in the EU's public database before 2 August 2026",
+    plain: "The EU AI Act requires all high-risk AI systems to be registered in a public database. All four of Allps AI's AI modules are high-risk. This is a one-time registration task. It cannot happen until Technical Files (P6) are complete. Because Allps AI is based in Switzerland, check with legal whether you need to appoint an EU legal representative first.",
+    notDoing: "After 2 August 2026, operating unregistered high-risk AI systems in hiring contexts is a direct EU AI Act violation. This is a hard regulatory deadline — there is no grace period.",
+    done: "All four modules registered in the EU AI database (ai-database.eu) before 2 August 2026. Registration IDs stored in compliance register. Legal representative question resolved before starting. Technical Files complete and referenced in registration.",
+    effort: "~1–2 days admin (after Technical Files are done)", cat: "ai", catLabel: "AI Safety Proof",
+  },
+];
+
+const ALL_PLATFORM_ITEMS = [...PLATFORM_SIX_IMMEDIATE, ...PLATFORM_SIX_MONTH12, ...PLATFORM_AUG2026];
+
+const P_CAT_COLORS = {
+  data:      { color:"#A32D2D", bg:"#FFF5F5", border:"#FECACA", label:"Data Infrastructure" },
+  candidate: { color:"#8B5500", bg:"#FFFBEB", border:"#FCD34D", label:"Candidate Control" },
+  ai:        { color:"#6B3AAA", bg:"#F5F0FF", border:"#D4C8F5", label:"AI Safety Proof" },
+  internal:  { color:"#1553AA", bg:"#EEF4FF", border:"#BFDBFE", label:"Internal Team" },
+};
+
+const P_STATUS_MAP = {
+  overdue:  { bg:"#FCEBEB", color:"#A32D2D", label:"⚠ Overdue — act now" },
+  month1:   { bg:"#FFF5F5", color:"#A32D2D", label:"Month 1–2" },
+  month2:   { bg:"#FFFBEB", color:"#8B5500", label:"Month 1–2" },
+  aug2026:  { bg:"#F5F0FF", color:"#6B3AAA", label:"Before Aug 2026" },
+};
+
+function PlatformGuideCard({ item, expanded, onToggle }) {
+  const cat  = P_CAT_COLORS[item.cat] || P_CAT_COLORS.data;
+  const stat = P_STATUS_MAP[item.status] || P_STATUS_MAP.month2;
+  return (
+    <div style={{ border:`1.5px solid ${cat.color}33`, borderRadius:10, overflow:"hidden", marginBottom:10 }}>
+      <button onClick={onToggle}
+        style={{ width:"100%", padding:"13px 16px", display:"flex", alignItems:"center", gap:14,
+          background: expanded ? `${cat.color}08` : "white", border:"none", cursor:"pointer", textAlign:"left" }}>
+        {/* ID pill */}
+        <div style={{ width:36, height:36, borderRadius:8, background:cat.color, display:"flex",
+          alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <span style={{ color:"white", fontWeight:800, fontSize:12 }}>{item.n}</span>
+        </div>
+        <div style={{ flex:1 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
+            <span style={{ fontSize:14, fontWeight:700, color:"#1A1A18" }}>{item.title}</span>
+          </div>
+          <div style={{ fontSize:12, color:"#555", lineHeight:1.4 }}>{item.plain}</div>
+        </div>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4, flexShrink:0, minWidth:120 }}>
+          <span style={{ background:stat.bg, color:stat.color, borderRadius:100,
+            padding:"2px 9px", fontSize:10, fontWeight:700, whiteSpace:"nowrap" }}>{stat.label}</span>
+          <span style={{ background:cat.bg, color:cat.color, borderRadius:100,
+            padding:"2px 9px", fontSize:10, fontWeight:600, whiteSpace:"nowrap" }}>{cat.label}</span>
+          <span style={{ fontSize:11, color:"#aaa" }}>{expanded ? "▲ Less" : "▼ Details"}</span>
+        </div>
+      </button>
+      {expanded && (
+        <div style={{ padding:16, borderTop:`1px solid ${cat.color}22`, background:"white" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+            <div style={{ background:"#FFF5F5", border:"1px solid #FECACA", borderRadius:8, padding:12 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:"#A32D2D", textTransform:"uppercase",
+                letterSpacing:"0.06em", marginBottom:6 }}>If you skip this</div>
+              <div style={{ fontSize:12, color:"#374151", lineHeight:1.6 }}>{item.notDoing}</div>
+            </div>
+            <div style={{ background:"#F0FDF4", border:"1px solid #86EFAC", borderRadius:8, padding:12 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:"#1A6B3A", textTransform:"uppercase",
+                letterSpacing:"0.06em", marginBottom:6 }}>Definition of done</div>
+              <div style={{ fontSize:12, color:"#374151", lineHeight:1.6 }}>{item.done}</div>
+            </div>
+            <div style={{ background:"#F5F4F2", border:"1px solid rgba(0,0,0,0.08)", borderRadius:8, padding:12 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:"#6B7280", textTransform:"uppercase",
+                letterSpacing:"0.06em", marginBottom:6 }}>Effort estimate</div>
+              <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18", marginBottom:4 }}>{item.effort}</div>
+              <div style={{ fontSize:11, color:"#6B7280" }}>Single focused engineer unless noted. Add buffer for review and QA.</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlatformSimplifiedGuide() {
+  const [sub, setSub]       = useState("essentials");
+  const [openCard, setOpen] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  const ACC = "#6B3AAA";
+
+  const subTabs = [
+    { id:"essentials", label:"The 11 Things That Matter" },
+    { id:"plan",       label:"Implementation Plan" },
+    { id:"glossary",   label:"Glossary" },
+  ];
+
+  const daysToAug = Math.ceil((new Date("2026-08-02") - new Date()) / (1000*60*60*24));
+
+  const catFilters = [
+    { id:"all",       label:"All" },
+    { id:"overdue",   label:"⚠ Overdue" },
+    { id:"data",      label:"Data Infrastructure" },
+    { id:"candidate", label:"Candidate Control" },
+    { id:"ai",        label:"AI Safety Proof" },
+    { id:"internal",  label:"Internal Team" },
+  ];
+
+  const filtered = ALL_PLATFORM_ITEMS.filter(item => {
+    if (filter === "all")     return true;
+    if (filter === "overdue") return item.status === "overdue";
+    return item.cat === filter;
+  });
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg, #3B1F7A 0%, #6B3AAA 100%)", borderRadius:10,
+        padding:"14px 18px", marginBottom:20, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ fontWeight:700, fontSize:14, color:"white", marginBottom:3 }}>
+            🚀 Platform GDPR & AI Act Essentials — Plain Language Guide
+          </div>
+          <div style={{ fontSize:12, color:"rgba(255,255,255,0.65)", lineHeight:1.5 }}>
+            11 things the platform team must build or complete. Written for engineers with no compliance background.
+          </div>
+        </div>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6 }}>
+          <span style={{ background:"#EF4444", color:"white", borderRadius:6, padding:"3px 10px",
+            fontSize:11, fontWeight:700 }}>4 items already overdue</span>
+          <span style={{ background:"rgba(255,255,255,0.15)", color:"white", borderRadius:6, padding:"3px 10px",
+            fontSize:11, fontWeight:600 }}>Aug 2026 deadline: {daysToAug} days</span>
+        </div>
+      </div>
+
+      <TabBar tabs={subTabs} active={sub} onChange={setSub} accent={ACC} />
+
+      {/* ── THE 11 THINGS ── */}
+      {sub === "essentials" && (
+        <div>
+          <div style={{ background:"#F5F0FF", border:"1px solid #D4C8F5", borderRadius:8,
+            padding:"10px 14px", marginBottom:18, fontSize:13, color:ACC, lineHeight:1.6 }}>
+            <strong>How to read this:</strong> 11 things the platform team must build or complete, grouped by urgency.
+            Four are already overdue — start there. Click any item for the full detail.
+          </div>
+
+          {/* Status overview strip */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:20 }}>
+            {[
+              { label:"Already overdue", items:["P1 Deletion engine","P2 DSR pipeline","P3 Audit log","P10 AI literacy training"], color:"#A32D2D", bg:"#FFF5F5", border:"#FECACA" },
+              { label:"Month 1–2", items:["P4 Candidate portal","P5 Consent enforcement middleware","P11 Client onboarding gate"], color:"#8B5500", bg:"#FFFBEB", border:"#FCD34D" },
+              { label:"Before August 2026", items:["P6 Technical Files (×4)","P7 Bias testing pipeline","P8 DPIAs (×3)","P9 EU AI registration (×4)"], color:"#6B3AAA", bg:"#F5F0FF", border:"#D4C8F5" },
+              { label:"Dependency chain", desc:"P6 must be done before P9. P7 must be in CI/CD before next model update. P8 must be done before August 2026.", color:"#1553AA", bg:"#EEF4FF", border:"#BFDBFE" },
+            ].map((col,i) => (
+              <div key={i} style={{ background:col.bg, border:`1px solid ${col.border}`, borderRadius:10, padding:12 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:col.color, textTransform:"uppercase",
+                  letterSpacing:"0.06em", marginBottom:8 }}>{col.label}</div>
+                {col.items
+                  ? col.items.map((item,j) => (
+                    <div key={j} style={{ display:"flex", gap:6, alignItems:"flex-start", marginBottom:5 }}>
+                      <span style={{ color:col.color, fontWeight:700, flexShrink:0, fontSize:12 }}>→</span>
+                      <span style={{ fontSize:11, color:"#374151", lineHeight:1.4 }}>{item}</span>
+                    </div>
+                  ))
+                  : <div style={{ fontSize:11, color:"#374151", lineHeight:1.5 }}>{col.desc}</div>
+                }
+              </div>
+            ))}
+          </div>
+
+          {/* Category filters */}
+          <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
+            {catFilters.map(f => (
+              <button key={f.id} onClick={() => setFilter(f.id)}
+                style={{ padding:"4px 14px", borderRadius:100, fontSize:11, fontWeight:600, cursor:"pointer",
+                  background: filter===f.id ? ACC : "#F0EDE8",
+                  color: filter===f.id ? "white" : "#555",
+                  border:`1px solid ${filter===f.id ? ACC : "rgba(0,0,0,0.1)"}` }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Cards */}
+          {filtered.map(item => (
+            <PlatformGuideCard key={item.id} item={item}
+              expanded={openCard === item.id}
+              onToggle={() => setOpen(openCard === item.id ? null : item.id)} />
+          ))}
+        </div>
+      )}
+
+      {/* ── IMPLEMENTATION PLAN ── */}
+      {sub === "plan" && (
+        <div>
+          <div style={{ background:"#F5F0FF", border:"1px solid #D4C8F5", borderRadius:8,
+            padding:"10px 14px", marginBottom:20, fontSize:13, color:ACC, lineHeight:1.6 }}>
+            <strong>How to use this:</strong> Work through the phases in order. Each phase has a clear
+            theme, tasks written for engineers, and a test that tells you it's done. The overdue items
+            in Phase 0 should be started immediately — they don't wait for the plan to kick off.
+          </div>
+
+          {/* Phase 0 — Immediate */}
+          {[
+            {
+              phase:"Phase 0", label:"Start immediately — already overdue",
+              color:"#A32D2D", bg:"#FFF5F5", border:"#FECACA",
+              note:"These items have no start date because they should have been done already. Begin this week.",
+              blocks:[
+                {
+                  week:"This sprint",
+                  title:"P1 — Nightly deletion engine",
+                  why:"Holding expired candidate data is an active violation. Every day this isn't running, you're accumulating liability.",
+                  tasks:[
+                    "Set up a scheduled cron job at 02:00 UTC daily",
+                    "Implement: delete candidate profiles where application_closed_at < NOW() - 12 months (unsuccessful only)",
+                    "Implement: delete interview recordings where role_closed_at < NOW() - 6 months",
+                    "Implement: delete talent pool profiles where consent_expires_at < NOW() and renewal not received",
+                    "Write every deletion to an immutable audit log: candidate_id (hashed), reason_code, triggered_by, timestamp",
+                    "Set up monitoring: if the job fails to complete, page the on-call engineer within 1 hour",
+                  ],
+                  testDone:"Verify the job ran at 02:00 this morning. Check its log. Manually verify that at least one test record that should have been deleted no longer exists in the database.",
+                  owner:"Backend / DevOps",
+                },
+                {
+                  week:"This sprint",
+                  title:"P2 — DSR ticketing with 30-day deadlines",
+                  why:"Data requests with no tracking system mean you cannot prove compliance. The 30-day window is non-negotiable.",
+                  tasks:[
+                    "Create a dsr_tickets table: id, candidate_id (hashed), client_id, type (ACCESS/DELETION/CORRECTION/PORTABILITY/OBJECTION), received_at, deadline_at (received_at + 30 days), assigned_to, status, fulfilled_at",
+                    "Wire candidate portal actions (delete, download) to create tickets in this table automatically",
+                    "Send automated acknowledgement email to candidate within 24 hours of ticket creation",
+                    "Build a simple admin view showing all open tickets sorted by deadline — closest deadline first",
+                    "Send an automated reminder to the assigned owner when a ticket is 7 days from deadline",
+                    "On ticket completion, send a confirmation email to the candidate listing what was done",
+                  ],
+                  testDone:"File a test deletion request from the candidate portal. Verify: ticket appears in admin view with correct deadline, acknowledgement email arrives within 24 hours, ticket has an assigned owner.",
+                  owner:"Backend + Product",
+                },
+                {
+                  week:"This sprint",
+                  title:"P3 — Immutable AI decision audit log",
+                  why:"Without this log you cannot prove a human reviewed any AI decision. You also cannot respond to a candidate challenging their assessment.",
+                  tasks:[
+                    "Create an ai_audit_log table: event_id, module_name, module_version, candidate_id (hashed), client_id, role_id, event_type (SCORED/REVIEWED/REJECTED/APPROVED), event_data (JSON), human_reviewer_id (nullable), human_action, created_at",
+                    "Make this table append-only — no UPDATE or DELETE operations permitted on it",
+                    "Instrument each AI pipeline step to write to this table on completion",
+                    "Instrument the human review action in the ATS to write to this table when a recruiter takes action",
+                    "Build an export endpoint: GET /audit-log?candidate_id=X returns all events for that candidate",
+                    "Verify log retention: records must be kept for minimum 6 months",
+                  ],
+                  testDone:"Run a test AI interview. Check the audit log for the test candidate: the AI assessment event appears, the human review event appears, both have correct timestamps and module versions.",
+                  owner:"Backend",
+                },
+                {
+                  week:"This week",
+                  title:"P10 — AI literacy training for all relevant staff",
+                  why:"The February 2025 deadline has passed. Any untrained staff member is a live compliance gap.",
+                  tasks:[
+                    "List every staff member who works with AI hiring features: engineers, product managers, customer success, support",
+                    "Check who has a training completion record — anyone without one is overdue",
+                    "Enrol overdue staff in AI literacy training immediately",
+                    "Create a training_completions table or use your existing HR system: staff_id, completed_at, training_version, next_due_at (completed_at + 12 months)",
+                    "Set a calendar reminder for each person's annual renewal",
+                    "New joiners: AI literacy training added to onboarding checklist as a Day 1 task",
+                  ],
+                  testDone:"Every relevant staff member has a completion record with a date and training version. Zero overdue staff in the Platform Staff Training tab.",
+                  owner:"CPO / HR",
+                },
+              ],
+            },
+            {
+              phase:"Phase 1", label:"Month 1–2 — Candidate control and client gates",
+              color:"#8B5500", bg:"#FFFBEB", border:"#FCD34D",
+              note:"These items can run in parallel. P4 should start first as P5 depends on the portal being live.",
+              blocks:[
+                {
+                  week:"Month 1",
+                  title:"P4 — Candidate self-service portal",
+                  why:"Candidates legally have the right to control their data. The portal is what makes this possible — it is also the backend to everything in the client consent dashboard.",
+                  tasks:[
+                    "Build a portal page served at a stable URL (e.g. /candidate-portal)",
+                    "Access via time-limited JWT magic link (7-day validity) sent in application confirmation emails",
+                    "Show on the portal: stored personal data, consent status for C2/C3/C4 independently, C1 processing status",
+                    "Implement Withdraw consent button per consent type — each independently, each creating a consent_records withdrawal event",
+                    "Implement Delete all my data button — creates a DSR ticket (type: DELETION) in the P2 pipeline",
+                    "Implement Download my data button — aggregates data from all storage systems, returns as JSON or PDF",
+                    "All actions send an automated confirmation email to the candidate",
+                  ],
+                  testDone:"A test candidate can: open the portal via magic link, see their data and consent statuses, withdraw C2 consent independently without affecting C3 or C4, request deletion, and receive confirmation emails for all actions — without contacting support.",
+                  owner:"Frontend + Backend",
+                },
+                {
+                  week:"Month 2",
+                  title:"P5 — Middleware enforcement of consent and objection",
+                  why:"The consent dashboard shows statuses but if the pipeline doesn't check them, nothing is actually enforced. P5 is what makes the compliance dashboard real.",
+                  tasks:[
+                    "Add a consent_check middleware function: takes (candidate_id, consent_type) and returns allowed/blocked",
+                    "The function checks consent_records for the given type — if withdrawn_at is set, return blocked",
+                    "For C1 objections: check c1_processing_records — if processing_active is false, return blocked",
+                    "Wire this check as a gate at the entry point of every AI pipeline step (screening, skills, matching, sourcing)",
+                    "If blocked: log the attempt to the audit log, route to human review queue, do not proceed",
+                    "Write tests: verify each AI pipeline step fails gracefully when consent is withdrawn for its type",
+                  ],
+                  testDone:"Withdraw C2 consent for a test candidate. Attempt to schedule an AI screening interview for that candidate. The interview must fail to start, the attempt must appear in the audit log, and the recruiter must see a human review task.",
+                  owner:"Backend",
+                },
+                {
+                  week:"Month 2",
+                  title:"P11 — Client onboarding gate before AI features are enabled",
+                  why:"Clients are using AI features without completing their legal obligations as deployers. This makes Allps AI a party to their non-compliance.",
+                  tasks:[
+                    "Add a deployer_onboarding_status table: client_id, item (AI_BRIEFING_RECEIVED / DPA_SIGNED / AI_DISCLOSURE_CONFIRMED / RIGHTS_PAGE_CONFIRMED), completed_at, confirmed_by",
+                    "In the client activation API, add a pre-condition check: all four onboarding items must be complete before AI features can be enabled",
+                    "If any item is incomplete, return a clear error to the activation flow identifying which items are missing",
+                    "Build a completion flow for each item: how the client confirms it (checkbox + signature or file upload for DPA)",
+                    "Surface completion status in the Platform Deployer Onboarding tab",
+                  ],
+                  testDone:"Attempt to enable AI matching for a client that has not completed the onboarding checklist. The activation must be blocked with a message naming the missing items. Complete all items. Attempt activation again — it must succeed.",
+                  owner:"Backend + Client onboarding flow",
+                },
+              ],
+            },
+            {
+              phase:"Phase 2", label:"Before August 2026 — AI safety documentation and registration",
+              color:"#6B3AAA", bg:"#F5F0FF", border:"#D4C8F5",
+              note:`${daysToAug} days remaining to the hard deadline. P6 must be complete before P9 can start. P7 should be wired into the next model update pipeline immediately.`,
+              blocks:[
+                {
+                  week:"Start now — target complete by 1 July 2026",
+                  title:"P6 — Technical File for each AI module (×4)",
+                  why:"You cannot register with the EU AI database without a complete Technical File. Registration must happen before 2 August 2026. Leaving this until July is risky.",
+                  tasks:[
+                    "Assign a Technical File owner per module: AI Sourcing, AI Matching, AI Screening Interview, AI Skills Interview",
+                    "Use Annex IV of the EU AI Act as your template (8 sections: description, architecture, training data, performance metrics, bias test results, known limitations, human oversight, version history)",
+                    "For each module: document what data fields are and are not used as inputs (reference P7 bias test results)",
+                    "For each module: document what the AI assesses and what it explicitly does not (emotions, facial expressions, etc.)",
+                    "For each module: document the human oversight mechanism (reference P3 audit log and the human-in-the-loop gate)",
+                    "Store all four Technical Files in the compliance register with version control",
+                    "Update each file when the model version changes — version history section tracks this",
+                  ],
+                  testDone:"Four Technical Files exist in the compliance register, each covering all 8 Annex IV sections, each referencing the correct model version, each signed off by the CPO.",
+                  owner:"Engineering leads + CPO (sign-off)",
+                },
+                {
+                  week:"Next model update — and every update after",
+                  title:"P7 — Bias testing as a CI/CD gate",
+                  why:"You're deploying AI that makes decisions about people's job applications. Without bias testing, you don't know if the model is systematically disadvantaging protected groups.",
+                  tasks:[
+                    "Build a bias_test_runner that takes a model version and a sample of anonymised historical scoring data",
+                    "Compute pass rates (advance rate) by demographic group: gender, age band, ethnicity",
+                    "Compute adverse impact ratio (AIR) for each group: group_pass_rate / highest_pass_rate",
+                    "Flag if any AIR < 0.8 (80% rule — the 4/5 rule used by most employment regulators)",
+                    "Store test report in compliance_bias_tests table: model_version, run_at, results_json, passed (boolean)",
+                    "Add as a required step in the model deployment pipeline: deployment blocked if test fails",
+                    "Surface test history in the Platform AI Module Registry",
+                  ],
+                  testDone:"Trigger a model update deployment. Verify the bias test runs automatically. Verify that a simulated test failure blocks the deployment. Check the compliance_bias_tests table shows the result.",
+                  owner:"ML Engineering + DevOps",
+                },
+                {
+                  week:"Target complete by 1 June 2026",
+                  title:"P8 — DPIA for each AI feature (×3)",
+                  why:"Launching AI features that process candidate data without a prior risk assessment is a GDPR gap. Not having done this worsens the regulatory outcome if a data breach or discrimination complaint occurs.",
+                  tasks:[
+                    "Produce three DPIAs: AI Matching, AI Screening Interview, AI Skills Interview",
+                    "Each DPIA must cover: what data is processed, why, who can see it, what the risks are (likelihood × severity), what you're doing to reduce each risk, what residual risk remains",
+                    "Use the ICO or EDPB DPIA template as a starting structure",
+                    "DPO must review and sign off each DPIA before it is filed",
+                    "Store all three in the compliance register with date and DPO sign-off record",
+                    "Schedule annual review or review on significant system changes (whichever comes first)",
+                  ],
+                  testDone:"Three DPIA documents exist in the compliance register, each with a DPO sign-off and a date. Each covers the required sections. Each is linked to the corresponding Technical File.",
+                  owner:"CPO + DPO (sign-off)",
+                },
+                {
+                  week:"Target complete by 2 August 2026 — hard deadline",
+                  title:"P9 — Register all four AI modules in the EU AI database",
+                  why:"After 2 August 2026, operating unregistered high-risk AI in hiring is a direct EU AI Act violation. No grace period.",
+                  tasks:[
+                    "Confirm with legal: does Allps AI need to appoint an EU legal representative before registering? (Required if not established in the EU — resolve this first)",
+                    "Verify all four Technical Files (P6) are complete — registration cannot proceed without them",
+                    "Register each module at ai-database.eu: AI Sourcing, AI Matching, AI Screening Interview, AI Skills Interview",
+                    "Store registration IDs in the compliance register — one per module",
+                    "Update the Platform AI Module Registry in the dashboard to show registered status",
+                  ],
+                  testDone:"All four modules show a registration ID in the EU AI database and in the Platform AI Module Registry. Registration completed before 2 August 2026.",
+                  owner:"CPO + Legal",
+                },
+              ],
+            },
+          ].map(phase => (
+            <div key={phase.phase} style={{ marginBottom:24 }}>
+              <div style={{ background:phase.bg, border:`1.5px solid ${phase.border}`,
+                borderRadius:10, padding:"12px 16px", marginBottom:10 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                  <div>
+                    <div style={{ fontSize:16, fontWeight:800, color:phase.color }}>{phase.phase}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#374151", marginTop:2 }}>{phase.label}</div>
+                  </div>
+                </div>
+                <div style={{ marginTop:8, fontSize:12, color:phase.color, background:`${phase.color}10`,
+                  borderRadius:6, padding:"6px 10px", lineHeight:1.5 }}>{phase.note}</div>
+              </div>
+              {phase.blocks.map(block => (
+                <div key={block.title} style={{ background:"white", border:"1px solid rgba(0,0,0,0.09)",
+                  borderRadius:10, marginBottom:10, overflow:"hidden" }}>
+                  {(() => {
+                    const [open, setOpen] = useState(false);
+                    return (
+                      <>
+                        <button onClick={() => setOpen(o => !o)}
+                          style={{ width:"100%", padding:"12px 16px", display:"flex", alignItems:"flex-start",
+                            gap:12, background:"none", border:"none", cursor:"pointer", textAlign:"left" }}>
+                          <span style={{ fontSize:10, fontWeight:700, color:"#6B7280", background:"#F5F4F2",
+                            borderRadius:6, padding:"3px 8px", whiteSpace:"nowrap", marginTop:1 }}>{block.week}</span>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.title}</div>
+                            <div style={{ fontSize:12, color:"#555", marginTop:2, lineHeight:1.4 }}>{block.why}</div>
+                          </div>
+                          <span style={{ fontSize:11, color:"#aaa", marginTop:1, flexShrink:0 }}>{open?"▲":"▼"}</span>
+                        </button>
+                        {open && (
+                          <div style={{ padding:"0 16px 16px", borderTop:"1px solid rgba(0,0,0,0.06)" }}>
+                            <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase",
+                              letterSpacing:"0.06em", margin:"12px 0 8px" }}>Tasks</div>
+                            <ol style={{ paddingLeft:20, margin:0 }}>
+                              {block.tasks.map((t,i) => (
+                                <li key={i} style={{ fontSize:12, color:"#374151", lineHeight:1.7, marginBottom:4 }}>{t}</li>
+                              ))}
+                            </ol>
+                            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:12 }}>
+                              <div style={{ background:"#F0FDF4", borderRadius:8, padding:"10px 12px", border:"1px solid #86EFAC" }}>
+                                <div style={{ fontSize:10, fontWeight:800, color:"#1A6B3A", textTransform:"uppercase",
+                                  letterSpacing:"0.06em", marginBottom:5 }}>✓ How you know it's done</div>
+                                <div style={{ fontSize:12, color:"#374151", lineHeight:1.6 }}>{block.testDone}</div>
+                              </div>
+                              <div style={{ background:"#F5F4F2", borderRadius:8, padding:"10px 12px", border:"1px solid rgba(0,0,0,0.08)" }}>
+                                <div style={{ fontSize:10, fontWeight:800, color:"#6B7280", textTransform:"uppercase",
+                                  letterSpacing:"0.06em", marginBottom:5 }}>Owner</div>
+                                <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.owner}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {/* Completion summary */}
+          <div style={{ background:"linear-gradient(135deg, #3B1F7A, #6B3AAA)", borderRadius:10, padding:16 }}>
+            <div style={{ fontSize:14, fontWeight:700, color:"white", marginBottom:12 }}>
+              ✓ When all 11 items are complete, the platform will have:
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
+              {[
+                "A nightly deletion job with full audit trail — no more expired data being held",
+                "A DSR ticketing system with 30-day deadlines, auto-acknowledgements, and named owners",
+                "An immutable AI decision log covering all modules, all clients, all candidates",
+                "A candidate portal where people can see, control, and delete their data without contacting support",
+                "Middleware that physically blocks AI processing when consent is withdrawn or an objection is filed",
+                "A client activation gate that prevents AI features from being enabled until onboarding is complete",
+                "Technical Files for all four AI modules — the foundation for EU AI Act registration",
+                "Bias testing wired into the CI/CD pipeline — no model goes live without passing",
+                "Three DPIAs covering all AI features that process candidate data",
+                "All four AI modules registered in the EU AI public database before the August 2026 deadline",
+                "Every relevant staff member with a current AI literacy training record",
+              ].map((item,i) => (
+                <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+                  <span style={{ color:"#22C55E", fontWeight:700, fontSize:14, flexShrink:0 }}>✓</span>
+                  <span style={{ fontSize:12, color:"rgba(255,255,255,0.8)", lineHeight:1.55 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── GLOSSARY ── */}
+      {sub === "glossary" && (
+        <div>
+          <div style={{ background:"#F5F4F2", border:"1px solid rgba(0,0,0,0.08)", borderRadius:8,
+            padding:"10px 14px", marginBottom:18, fontSize:12, color:"#6B7280" }}>
+            Platform-specific terms and concepts. Same plain-language standard as the client guide.
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+            {[
+              ["Deletion engine / retention job", "An automated script that runs every night and deletes data that has passed its allowed keep window. Not a manual process — it must run on a schedule and log what it deleted. If it fails, someone gets paged."],
+              ["DSR (Data Subject Request)", "A formal request from a candidate to exercise their privacy rights: see their data, delete it, correct it, or download it. You have 30 days to respond. Must be tracked in a ticketing system with a named owner — not an inbox."],
+              ["Audit log (immutable)", "A record of every significant AI decision and human action that cannot be edited or deleted. Append-only. If a candidate or regulator asks 'what did the AI decide about me and did a human review it?' — this log is your proof."],
+              ["Magic link", "A time-limited login link sent by email that gives a specific person access to their portal without needing to create an account or remember a password. Expires after 7 days. This is how candidates access the self-service portal."],
+              ["Consent middleware", "A code-level gate that checks whether a candidate has valid consent before any AI pipeline step runs. If consent has been withdrawn, the pipeline step is blocked — not just noted in a database. This is what makes the consent dashboard enforceable."],
+              ["Technical File", "A regulatory document required by the EU AI Act for each high-risk AI module. Describes what the AI does, what data it uses, how it performs, and how humans stay in control. Required before EU AI database registration. Internal document — not public."],
+              ["DPIA (Data Protection Impact Assessment)", "A document you produce before launching any feature that processes personal data at scale or uses it to make decisions about people. Describes the risks and what you're doing about them. Your DPO signs off. Required under GDPR for high-risk processing."],
+              ["DPO (Data Protection Officer)", "The person responsible for ensuring data protection compliance. They sign off DPIAs, review data processing decisions, and are the named contact for supervisory authorities. Allps AI must have one."],
+              ["Bias testing / 80% rule", "A test that checks whether an AI model treats different demographic groups differently. The 80% rule: if any group's pass rate is less than 80% of the highest-passing group's rate, the model has an adverse impact problem and must not be deployed."],
+              ["Adverse Impact Ratio (AIR)", "The number that the bias test produces per group: AIR = (group pass rate) ÷ (highest group pass rate). If any group gets an AIR below 0.8, that is a bias flag. Store this result per model version."],
+              ["EU AI Database / EAIS", "A public registry of all high-risk AI systems in the EU, run by the European Commission. All four of Allps AI's AI modules must be registered here before 2 August 2026. Registration portal: ai-database.eu."],
+              ["High-risk AI (Annex III)", "The EU AI Act classification that covers AI used in hiring. All four Allps AI modules are in this category. Being high-risk means: you must produce Technical Files, run bias tests, appoint human oversight, and register with the EU database."],
+              ["Deployer", "The client employer who uses Allps AI's hiring software. They are responsible for their own GDPR obligations — AI disclosure on job postings, human review of AI decisions, staff training. The platform must enforce that they've met these before enabling AI features."],
+              ["Provider", "The company that built and trained the AI — Allps AI. Providers have heavier obligations than deployers: Technical Files, bias testing, DPIA, EU AI registration, post-market monitoring."],
+              ["Art. 4 AI Literacy", "A requirement in force since February 2025. Everyone who works with high-risk AI systems — engineers, product managers, customer success — must have basic AI literacy training. Annual renewal required. The platform team is covered by this as a provider."],
+              ["Compelling legitimate grounds (Art. 21)", "When a candidate objects to C1 processing, the platform can continue processing only if it can document that its legitimate interest overrides the candidate's rights. This is rare, requires DPO sign-off, and must be communicated to the candidate in plain language."],
+              ["Append-only / immutable log", "A database table or storage mechanism where rows can only be inserted, never updated or deleted. Ensures the audit trail cannot be tampered with. Implemented by removing UPDATE and DELETE permissions on the table at the database level."],
+              ["CI/CD gate", "A step in your deployment pipeline that must pass before code or a model can be deployed to production. Bias testing as a CI/CD gate means: a model update cannot ship unless it passes the bias test. Failing the gate blocks the deployment automatically."],
+            ].map(([term, def]) => (
+              <div key={term} style={{ background:"white", border:"1px solid rgba(0,0,0,0.08)",
+                borderRadius:8, padding:14 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18", marginBottom:6 }}>{term}</div>
+                <div style={{ fontSize:12, color:"#374151", lineHeight:1.65 }}>{def}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PlatformDashboard() {
-  const [tab, setTab] = useState("gdpr");
+  const [tab, setTab] = useState("essentials");
   const [gdprSub, setGdprSub] = useState("overview");
   const [aiSub, setAiSub] = useState("modules");
 
@@ -2506,8 +3115,13 @@ function PlatformDashboard() {
         <div style={{ fontSize:12, color:ACC }}>Allps AI · CPO / DPO View</div>
       </div>
 
-      <TabBar tabs={[{id:"gdpr",label:"🔐 GDPR Operations"},{id:"aiact",label:"🤖 AI Act (Provider)"}]} active={tab} onChange={t=>{setTab(t); setGdprSub("overview"); setAiSub("modules");}} accent={ACC} />
+      <TabBar tabs={[
+        {id:"essentials", label:"🚀 Essentials"},
+        {id:"gdpr",       label:"🔐 GDPR Operations"},
+        {id:"aiact",      label:"🤖 AI Act (Provider)"},
+      ]} active={tab} onChange={t=>{setTab(t); setGdprSub("overview"); setAiSub("modules");}} accent={ACC} />
 
+      {tab === "essentials" && <PlatformSimplifiedGuide />}
       {tab === "gdpr" && (
         <div>
           <TabBar tabs={gdprTabs} active={gdprSub} onChange={setGdprSub} accent={ACC} />
