@@ -2,14 +2,14 @@
   {
     "id": "consent-management-dashboard",
     "title": "Consent Management Dashboard",
-    "description": "Consent Management Dashboard (Client and Platform) with supporting Documentation",
-    "category": "ATS Workflow",
+    "description": "Consent Management Dashboard (Client and Platform) with supporting simplified Documentation",
+    "category": "Other",
     "tags": [
       "Candidate Experience",
       "Compliance"
     ],
     "type": "react",
-    "file": "Consent_management_dashboard_v2",
+    "file": "Consent_management_dashboard_v3",
     "status": "review",
     "addedAt": "2026-05-14",
     "addedBy": "Javed Memon"
