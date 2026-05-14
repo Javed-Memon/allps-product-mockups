@@ -2,14 +2,14 @@
   {
     "id": "consent-management-dashboard",
     "title": "Consent Management Dashboard",
-    "description": "Updated developer reference panel",
+    "description": "Consent Management Dashboard (Client and Platform) with supporting Documentation",
     "category": "ATS Workflow",
     "tags": [
       "Candidate Experience",
       "Compliance"
     ],
     "type": "react",
-    "file": "allps_ai_consent_management_dashboard_v1_updated",
+    "file": "Consent_management_dashboard_v1_updated",
     "status": "review",
     "addedAt": "2026-05-14",
     "addedBy": "Javed Memon"
