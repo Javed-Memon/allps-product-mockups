@@ -2646,6 +2646,48 @@ function PlatformGuideCard({ item, expanded, onToggle }) {
   );
 }
 
+function PlanBlock({ block }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ background:"white", border:"1px solid rgba(0,0,0,0.09)", borderRadius:10, marginBottom:10, overflow:"hidden" }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ width:"100%", padding:"12px 16px", display:"flex", alignItems:"flex-start",
+          gap:12, background:"none", border:"none", cursor:"pointer", textAlign:"left" }}>
+        <span style={{ fontSize:10, fontWeight:700, color:"#6B7280", background:"#F5F4F2",
+          borderRadius:6, padding:"3px 8px", whiteSpace:"nowrap", marginTop:1 }}>{block.week}</span>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.title}</div>
+          <div style={{ fontSize:12, color:"#555", marginTop:2, lineHeight:1.4 }}>{block.why}</div>
+        </div>
+        <span style={{ fontSize:11, color:"#aaa", marginTop:1, flexShrink:0 }}>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div style={{ padding:"0 16px 16px", borderTop:"1px solid rgba(0,0,0,0.06)" }}>
+          <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase",
+            letterSpacing:"0.06em", margin:"12px 0 8px" }}>Tasks</div>
+          <ol style={{ paddingLeft:20, margin:0 }}>
+            {block.tasks.map((t, i) => (
+              <li key={i} style={{ fontSize:12, color:"#374151", lineHeight:1.7, marginBottom:4 }}>{t}</li>
+            ))}
+          </ol>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:12 }}>
+            <div style={{ background:"#F0FDF4", borderRadius:8, padding:"10px 12px", border:"1px solid #86EFAC" }}>
+              <div style={{ fontSize:10, fontWeight:800, color:"#1A6B3A", textTransform:"uppercase",
+                letterSpacing:"0.06em", marginBottom:5 }}>✓ How you know it's done</div>
+              <div style={{ fontSize:12, color:"#374151", lineHeight:1.6 }}>{block.testDone}</div>
+            </div>
+            <div style={{ background:"#F5F4F2", borderRadius:8, padding:"10px 12px", border:"1px solid rgba(0,0,0,0.08)" }}>
+              <div style={{ fontSize:10, fontWeight:800, color:"#6B7280", textTransform:"uppercase",
+                letterSpacing:"0.06em", marginBottom:5 }}>Owner</div>
+              <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.owner}</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PlatformSimplifiedGuide() {
   const [sub, setSub]       = useState("essentials");
   const [openCard, setOpen] = useState(null);
@@ -2967,50 +3009,7 @@ function PlatformSimplifiedGuide() {
                   borderRadius:6, padding:"6px 10px", lineHeight:1.5 }}>{phase.note}</div>
               </div>
               {phase.blocks.map(block => (
-                <div key={block.title} style={{ background:"white", border:"1px solid rgba(0,0,0,0.09)",
-                  borderRadius:10, marginBottom:10, overflow:"hidden" }}>
-                  {(() => {
-                    const [open, setOpen] = useState(false);
-                    return (
-                      <>
-                        <button onClick={() => setOpen(o => !o)}
-                          style={{ width:"100%", padding:"12px 16px", display:"flex", alignItems:"flex-start",
-                            gap:12, background:"none", border:"none", cursor:"pointer", textAlign:"left" }}>
-                          <span style={{ fontSize:10, fontWeight:700, color:"#6B7280", background:"#F5F4F2",
-                            borderRadius:6, padding:"3px 8px", whiteSpace:"nowrap", marginTop:1 }}>{block.week}</span>
-                          <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.title}</div>
-                            <div style={{ fontSize:12, color:"#555", marginTop:2, lineHeight:1.4 }}>{block.why}</div>
-                          </div>
-                          <span style={{ fontSize:11, color:"#aaa", marginTop:1, flexShrink:0 }}>{open?"▲":"▼"}</span>
-                        </button>
-                        {open && (
-                          <div style={{ padding:"0 16px 16px", borderTop:"1px solid rgba(0,0,0,0.06)" }}>
-                            <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase",
-                              letterSpacing:"0.06em", margin:"12px 0 8px" }}>Tasks</div>
-                            <ol style={{ paddingLeft:20, margin:0 }}>
-                              {block.tasks.map((t,i) => (
-                                <li key={i} style={{ fontSize:12, color:"#374151", lineHeight:1.7, marginBottom:4 }}>{t}</li>
-                              ))}
-                            </ol>
-                            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:12 }}>
-                              <div style={{ background:"#F0FDF4", borderRadius:8, padding:"10px 12px", border:"1px solid #86EFAC" }}>
-                                <div style={{ fontSize:10, fontWeight:800, color:"#1A6B3A", textTransform:"uppercase",
-                                  letterSpacing:"0.06em", marginBottom:5 }}>✓ How you know it's done</div>
-                                <div style={{ fontSize:12, color:"#374151", lineHeight:1.6 }}>{block.testDone}</div>
-                              </div>
-                              <div style={{ background:"#F5F4F2", borderRadius:8, padding:"10px 12px", border:"1px solid rgba(0,0,0,0.08)" }}>
-                                <div style={{ fontSize:10, fontWeight:800, color:"#6B7280", textTransform:"uppercase",
-                                  letterSpacing:"0.06em", marginBottom:5 }}>Owner</div>
-                                <div style={{ fontSize:13, fontWeight:700, color:"#1A1A18" }}>{block.owner}</div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
+                <PlanBlock key={block.title} block={block} />
               ))}
             </div>
           ))}
