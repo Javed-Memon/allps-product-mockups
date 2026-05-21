@@ -5,13 +5,13 @@
     "description": "Consent Management Dashboard (Client and Platform) and Sample Consent Screens with supporting simplified Documentation",
     "category": "Other",
     "tags": [
-      "Candidate Experience",
-      "Compliance"
+      "GDPR",
+      "EU_AI_Act"
     ],
     "type": "react",
-    "file": "Consent_management_dashboard_v4",
+    "file": "Consent_management_dashboard_v5",
     "status": "review",
-    "addedAt": "2026-05-19",
+    "addedAt": "2026-05-21",
     "addedBy": "Javed Memon"
   },
   {
